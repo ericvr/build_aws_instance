@@ -20,7 +20,7 @@ resource "aws_instance" "lab_server_01" {
   security_groups = ["launch-wizard-1","default"]
   key_name= "key_serv_pruebas"
   tags = {
-    Name = "serv_tf_lab08"
+    Name = "serv_tf_lab09"
   }
 }
 
