@@ -1,10 +1,12 @@
-- name: Install node and npm
-  hosts: all
+- hosts: all
+  become: yes
+  gather_facts: false
   tasks:
-    - name: Update apt repo and cache
-      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
-    - name: Install nodejs and npm
-      apt:
-        pkg:
-          - nodejs
-          - npm
+  - name: Execute a command apt update
+      shell: apt update
+  - name: Execute a command apt update
+      shell: apt install nodejs
+  - name: Execute a command apt update
+      shell: nodejs -v
+  - name: Execute a command apt update
+      shell: apt install npm
