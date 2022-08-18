@@ -3,10 +3,16 @@
   gather_facts: false
   tasks:
   - name: Execute a command apt update
-      shell: apt-get install curl
+    command: apt-get install curl
+    ignore errors: yes
+
   - name: Execute a command apt update
-      shell: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    command: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    ignore errors: yes
+
   - name: Execute a command apt update
-      shell: apt-get install nodejs
+    command: apt-get install nodejs
+    ignore errors: yes
+    
   - name: Execute a command apt update
-      shell: node -v
+    command: node -v
