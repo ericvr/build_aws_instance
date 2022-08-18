@@ -1,0 +1,14 @@
+- hosts: all
+  tasks:
+    - name: Execute a command apt update
+      shell: sudo apt update
+    - name: Execute a command apt install
+      shell: sudo apt install apt-transport-https ca-certificates curl software-properties-common
+    - name: Execute a command -fsSL
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    - name: Execute a command add-apt-repository
+      shell: sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    - name: Execute a command apt update
+      shell: sudo apt update
+    - name: Execute a command apt-cache
+      shell: apt-cache policy docker-ce
