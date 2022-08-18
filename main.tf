@@ -25,6 +25,12 @@ resource "aws_instance" "lab_server_01" {
   tags = {
     Name = "serv_tf_lab04"
   }
+  image = docker_image.nginx.latest
+  name  = var.reponame   // Cambiarla dinámicamente por la Variable env.DOCKER_REPO que está en el Jenkins
+  ports {
+    internal = 80
+    external = var.container_port  // Cambiarla dinámicamente por la variable CONTAINER_PORT que está en el Jenkins.
+  }
 }
 
 output "instance_public_ip" {
