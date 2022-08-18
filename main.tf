@@ -17,7 +17,7 @@ provider "aws" {
 resource "aws_instance" "lab_server_01" {
   ami           = "ami-052efd3df9dad4825"
   instance_type = "t2.micro"
-  security_groups = ["launch-wizard-5","default"]
+  security_groups = ["launch-wizard-2","default"]
   key_name= "key_serv_pruebas"
   tags = {
     Name = "serv_tf_lab01"
