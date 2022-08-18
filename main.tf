@@ -9,6 +9,9 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
+variable "reponame" {}
+variable "container_port" {}
+
 provider "aws" {
   region  = "us-east-1"
 }
@@ -20,7 +23,7 @@ resource "aws_instance" "lab_server_01" {
   security_groups = ["launch-wizard-1","default"]
   key_name= "key_serv_pruebas"
   tags = {
-    Name = "serv_tf_lab03"
+    Name = "serv_tf_lab04"
   }
 }
 
