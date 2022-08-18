@@ -3,10 +3,10 @@
   gather_facts: false
   tasks:
   - name: Execute a command apt update
-      shell: apt update
+      shell: apt-get install curl
   - name: Execute a command apt update
-      shell: apt install nodejs
+      shell: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
   - name: Execute a command apt update
-      shell: nodejs -v
+      shell: apt-get install nodejs
   - name: Execute a command apt update
-      shell: apt install npm
+      shell: node -v
