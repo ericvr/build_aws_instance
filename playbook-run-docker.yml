@@ -1,0 +1,18 @@
+- hosts: all
+  become: true
+
+  tasks:
+    - name: log into docker hub registry
+      docker_login:
+        email: "eeric466@gmail.com"
+        username: "eeric466"
+        password: "Samare_22"
+
+    - name: ensure a container is running
+      docker_container:
+        name: my_container
+        state: started
+        image: "my_username/my_container:master-latest"
+        pull: true
+        ports:
+          - "82:80"
