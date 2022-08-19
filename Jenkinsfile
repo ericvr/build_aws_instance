@@ -1,9 +1,10 @@
 def genaralvars () {
 
-    env.GIT_REPO = 'https://gitlab.com/tripetto/examples/angular.git'
+    env.GIT_REPO = 'https://github.com/ericvr/build_aws_instance.git'
     env.GIT_BRANCH = 'main'
     env.DOCKER_REPO = 'eeric466'
     CONTAINER_PORT= '82'
+    env.GIT_WEB = 'https://github.com/ericvr/ericvr.github.io.git'
 
 }
 
@@ -21,7 +22,15 @@ pipeline {
         }
         stage('Git checkout') {
            steps{
-                git branch: 'main', url: 'https://github.com/ericvr/build_aws_instance.git'
+                git branch: "${env.GIT_BRANCH}", url: "${env.GIT_REPO}"
+                sh "mkdir public"
+            }
+        }
+        stage('Git web checkout  ') {
+           steps{
+                dir("public"){
+                git branch: "${env.GIT_BRANCH}", url: "${env.GIT_WEB}"
+                }
             }
         }
         stage('terraform format check') {
@@ -52,9 +61,9 @@ pipeline {
                 sh "echo $PUBLIC_IP_EC2 > inventory.hosts"
             }
         } 
-        stage('Wait 5 minutes') {
+        stage('Wait 1 minute') {
             steps {
-                sleep time:5, unit: 'MINUTES'
+                sleep time:1, unit: 'MINUTES'
             }
         }
         
@@ -64,21 +73,50 @@ pipeline {
             }
         }
         
-        stage ("Verify If exist container") {
+        stage ("Create Dockerfile") {
             steps {
-                    script {
-                        DOCKERID = sh (script: "docker ps -f publish=${CONTAINER_PORT} -q", returnStdout: true).trim()
-                        if  ( DOCKERID !="" ) {
-                            if (fileExists('terraform.tfstate')) {
-                                sh "terraform destroy  -var=\"container_port=${CONTAINER_PORT}\" -var=\"reponame=${env.DOCKER_REPO}\" --target docker_container.nginx --auto-approve"
-                            }
-                            else {
-                                sh "docker stop ${DOCKERID}"
-                            }
-                        }
+                sh '''
+                    cat <<EOT > Dockerfile
+                    FROM nginx:latest
+                    COPY public/ /usr/share/nginx/html/
+                '''
+            }
+        }
+        stage ("Build Image") {
+            steps {
+                sh "docker build -t ${env.DOCKER_REPO}/${JOB_BASE_NAME}:${BUILD_NUMBER} ."
+            }
+        }
+        stage ("Publish Image") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'erick-hub1', passwordVariable: 'docker_pass', usernameVariable: 'docker_user')]) {
+                    sh "docker login -u $docker_user -p $docker_pass"
+                    sh "docker push ${env.DOCKER_REPO}/${JOB_BASE_NAME}:${BUILD_NUMBER}"
                 }
+            }
+        }
+        stage ("Pull docker in aws") {
+            steps {
+                ansiblePlaybook become: true, colorized: true, extras: '-v', disableHostKeyChecking: true, credentialsId: 'erick-ssh', installation: 'ansible210', inventory: 'inventory.hosts', playbook: 'playbook-pull-docker.yml', extraVars: [ var_job_name: "${JOB_BASE_NAME}", var_build_number: "${BUILD_NUMBER}", var_docker_repo: "${env.DOCKER_REPO}", var_container_port: "${CONTAINER_PORT}", var_ip: "${PUBLIC_IP_EC2}" ]
+            }
+        }
+        stage ("Run docker in aws") {
+            steps {
+                ansiblePlaybook become: true, colorized: true, extras: '-v', disableHostKeyChecking: true, credentialsId: 'erick-ssh', installation: 'ansible210', inventory: 'inventory.hosts', playbook: 'playbook-run-docker.yml', extraVars: [ var_job_name: "${JOB_BASE_NAME}", var_build_number: "${BUILD_NUMBER}", var_docker_repo: "${env.DOCKER_REPO}", var_container_port: "${CONTAINER_PORT}", var_ip: "${PUBLIC_IP_EC2}" ]
+            }
+        }
+        stage('Manual Approval to Destroy the Infra') {
+            steps{
+                input "Proceed with destroy the Infra?"
+            }
+        }
+        stage('Executing Terraform Destroy') {
+            steps{
+                withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'erick_aws_credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]){
+                sh "terraform destroy --auto-approve"
+            }
             }
         }
         
     }
-} 
+}
