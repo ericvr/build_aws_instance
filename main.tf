@@ -14,7 +14,7 @@ terraform {
 
 provider "aws" {
   region  = "us-east-1"
-  host    = "unix:///var/run/docker.sock"
+  //host    = "unix:///var/run/docker.sock"
 }
 
 
