@@ -12,7 +12,7 @@
       docker_container:
         name: my_container
         state: started
-        image: "my_username/my_container:master-latest"
+        image: "eeric466/build-aws-ec2:master-latest"
         pull: true
         ports:
           - "82:80"
