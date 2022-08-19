@@ -1,18 +1,7 @@
 - hosts: all
   become: true
-
   tasks:
-    - name: log into docker hub registry
-      docker_login:
-        email: "eeric466@gmail.com"
-        username: "eeric466"
-        password: "Samare_22"
+    - name: docker pull example
+        shell: docker pull "{{ var_docker_repo }}"/"{{ var_job_name }}":"{{ var_build_number }}"
 
-    - name: ensure a container is running
-      docker_container:
-        name: my_container
-        state: started
-        image: "eeric466/build-aws-ec2:master-latest"
-        pull: true
-        ports:
-          - "82:80"
+   
