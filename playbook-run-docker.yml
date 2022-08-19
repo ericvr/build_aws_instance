@@ -2,5 +2,4 @@
   become: true
   tasks:
     - name: docker pull example
-      remote user: ubuntu
       shell: docker run -d -p "{{ var_container_port }}":80 "{{ var_docker_repo }}"/"{{ var_job_name }}":"{{ var_build_number }}"
