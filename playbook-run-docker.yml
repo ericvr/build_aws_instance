@@ -1,4 +1,5 @@
-- hosts: [inventory.hosts]
+- hosts: "{{var_ip}}"
   tasks:
     - name: docker pull example
       shell: docker run -d -p "{{ var_container_port }}":80 "{{ var_docker_repo }}"/"{{ var_job_name }}":"{{ var_build_number }}"
+      
